@@ -8,7 +8,7 @@ def _utcnow() -> datetime:
 
 
 class Meal(SQLModel, table=True):
-    __tablename__ = "meals"
+    __tablename__ = "meals"  # pyright: ignore[reportAssignmentType]
     id: int | None = Field(default=None, primary_key=True)
     eaten_at: datetime
     description: str
@@ -21,7 +21,7 @@ class Meal(SQLModel, table=True):
 
 
 class Workout(SQLModel, table=True):
-    __tablename__ = "workouts"
+    __tablename__ = "workouts"  # pyright: ignore[reportAssignmentType]
     id: int | None = Field(default=None, primary_key=True)
     done_at: datetime
     type: str
@@ -33,7 +33,7 @@ class Workout(SQLModel, table=True):
 
 
 class Weight(SQLModel, table=True):
-    __tablename__ = "weights"
+    __tablename__ = "weights"  # pyright: ignore[reportAssignmentType]
     id: int | None = Field(default=None, primary_key=True)
     measured_at: datetime
     kg: Decimal
