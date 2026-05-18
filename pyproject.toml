@@ -16,10 +16,6 @@ dependencies = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[project.scripts]
-coach = "main:main"
-pull:env =""
-
 [tool.hatch.build.targets.wheel]
 packages = ["coach"]
 

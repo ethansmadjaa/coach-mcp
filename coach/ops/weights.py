@@ -1,10 +1,14 @@
 from datetime import datetime, timezone
 from typing import Any
 from pydantic import TypeAdapter
-from sqlmodel import Session, select
+from sqlmodel import Session, col, select
 from coach.models import Weight
 from coach.ops.payloads import (
-    WeightsPayload, LogWeight, UpdateWeight, DeleteWeight, ListWeights,
+    WeightsPayload,
+    LogWeight,
+    UpdateWeight,
+    DeleteWeight,
+    ListWeights,
 )
 from coach.time import paris_day_bounds, parse_iso_or_date
 
@@ -65,7 +69,7 @@ def _delete(session: Session, p: DeleteWeight) -> dict[str, Any]:
 
 
 def _list(session: Session, p: ListWeights) -> list[dict[str, Any]]:
-    stmt = select(Weight).order_by(Weight.measured_at)
+    stmt = select(Weight).order_by(col(Weight.measured_at))
     if p.from_ is not None:
         f = parse_iso_or_date(p.from_)
         if isinstance(f, datetime):

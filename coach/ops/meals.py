@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from typing import Any
 from pydantic import TypeAdapter
-from sqlmodel import Session, select
+from sqlmodel import Session, col, select
 from coach.models import Meal
 from coach.ops.payloads import MealsPayload, LogMeal, UpdateMeal, DeleteMeal, ListMeals
 from coach.time import paris_day_bounds, parse_iso_or_date
@@ -56,7 +56,15 @@ def _update(session: Session, p: UpdateMeal) -> dict[str, Any]:
     m = session.get(Meal, p.id)
     if m is None:
         raise LookupError(f"meal {p.id} not found")
-    for field in ("description", "kcal", "source", "eaten_at", "protein_g", "carbs_g", "fat_g"):
+    for field in (
+        "description",
+        "kcal",
+        "source",
+        "eaten_at",
+        "protein_g",
+        "carbs_g",
+        "fat_g",
+    ):
         v = getattr(p, field)
         if v is not None:
             setattr(m, field, v)
@@ -76,7 +84,7 @@ def _delete(session: Session, p: DeleteMeal) -> dict[str, Any]:
 
 
 def _list(session: Session, p: ListMeals) -> list[dict[str, Any]]:
-    stmt = select(Meal).order_by(Meal.eaten_at)
+    stmt = select(Meal).order_by(col(Meal.eaten_at))
     if p.from_ is not None:
         f = parse_iso_or_date(p.from_)
         if isinstance(f, datetime):

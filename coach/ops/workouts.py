@@ -1,10 +1,14 @@
 from datetime import datetime, timezone
 from typing import Any
 from pydantic import TypeAdapter
-from sqlmodel import Session, select
+from sqlmodel import Session, col, select
 from coach.models import Workout
 from coach.ops.payloads import (
-    WorkoutsPayload, LogWorkout, UpdateWorkout, DeleteWorkout, ListWorkouts,
+    WorkoutsPayload,
+    LogWorkout,
+    UpdateWorkout,
+    DeleteWorkout,
+    ListWorkouts,
 )
 from coach.time import paris_day_bounds, parse_iso_or_date
 
@@ -76,7 +80,7 @@ def _delete(session: Session, p: DeleteWorkout) -> dict[str, Any]:
 
 
 def _list(session: Session, p: ListWorkouts) -> list[dict[str, Any]]:
-    stmt = select(Workout).order_by(Workout.done_at)
+    stmt = select(Workout).order_by(col(Workout.done_at))
     if p.from_ is not None:
         f = parse_iso_or_date(p.from_)
         if isinstance(f, datetime):

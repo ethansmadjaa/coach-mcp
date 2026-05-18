@@ -8,6 +8,7 @@ Source = Literal["estimated", "exact"]
 
 # --- meals ---
 
+
 class LogMeal(BaseModel):
     model_config = ConfigDict(extra="forbid")
     op: Literal["log"]
@@ -54,6 +55,7 @@ MealsPayload = Annotated[
 
 # --- workouts ---
 
+
 class LogWorkout(BaseModel):
     model_config = ConfigDict(extra="forbid")
     op: Literal["log"]
@@ -97,6 +99,7 @@ WorkoutsPayload = Annotated[
 
 
 # --- weights ---
+
 
 class LogWeight(BaseModel):
     model_config = ConfigDict(extra="forbid")

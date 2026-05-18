@@ -1,7 +1,7 @@
 from datetime import date as date_cls, datetime, timedelta
 from decimal import Decimal
 from typing import Any
-from sqlmodel import Session, select
+from sqlmodel import Session, col, select
 from coach.models import Meal, Workout, Weight
 from coach.time import paris_day_bounds, PARIS
 
@@ -17,7 +17,7 @@ def _aggregate_day(session: Session, d: date_cls) -> dict[str, Any]:
     weights = session.exec(
         select(Weight)
         .where(Weight.measured_at >= start, Weight.measured_at < end)
-        .order_by(Weight.measured_at.desc())
+        .order_by(col(Weight.measured_at).desc())
     ).all()
 
     kcal_in = sum((m.kcal for m in meals), Decimal(0))
