@@ -5,6 +5,8 @@ from fastmcp import FastMCP
 from fastmcp.server.auth.auth import AccessToken
 from fastmcp.server.auth.providers.github import GitHubProvider, GitHubTokenVerifier
 from sqlalchemy.engine import Engine
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 from coach.config import Settings
 from coach.db import make_engine, session_for
@@ -14,29 +16,35 @@ from coach.ops.weights import handle_weights
 from coach.ops.summary import get_summary, get_history
 
 
-ALLOWED_GITHUB_LOGIN = "ethansmadjaa"
-
-
 class AllowlistedGitHubVerifier(GitHubTokenVerifier):
+    def __init__(self, *, allowed_login: str) -> None:
+        super().__init__(required_scopes=["user"])
+        self._allowed_login = allowed_login
+
     async def verify_token(self, token: str) -> AccessToken | None:
         access = await super().verify_token(token)
         if access is None:
             return None
-        if access.claims.get("login") != ALLOWED_GITHUB_LOGIN:
+        if access.claims.get("login") != self._allowed_login:
             return None
         return access
 
 
 class AllowlistedGitHubProvider(GitHubProvider):
-    def __init__(self, *, client_id: str, client_secret: str, base_url: str) -> None:
+    def __init__(
+        self,
+        *,
+        client_id: str,
+        client_secret: str,
+        base_url: str,
+        allowed_login: str,
+    ) -> None:
         super().__init__(
             client_id=client_id,
             client_secret=client_secret,
             base_url=base_url,
         )
-        self.token_verifier = AllowlistedGitHubVerifier(
-            required_scopes=["user"],
-        )
+        self.token_verifier = AllowlistedGitHubVerifier(allowed_login=allowed_login)
 
 
 def build_server(settings: Settings, engine: Engine | None = None) -> FastMCP:
@@ -46,9 +54,14 @@ def build_server(settings: Settings, engine: Engine | None = None) -> FastMCP:
         client_id=os.environ["GITHUB_CLIENT_ID"],
         client_secret=os.environ["GITHUB_CLIENT_SECRET"],
         base_url=os.environ["BASE_URL"],
+        allowed_login=os.environ["ALLOWED_GITHUB_LOGIN"],
     )
 
     mcp = FastMCP("Calorie Coach", auth=auth)
+
+    @mcp.custom_route("/health", methods=["GET"])
+    async def health(_: Request) -> JSONResponse:
+        return JSONResponse({"status": "ok"})
 
     @mcp.tool(
         name="meals",

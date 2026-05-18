@@ -1,6 +1,7 @@
-from sqlmodel import Session, create_engine
+from sqlmodel import Session, SQLModel, create_engine
 from sqlalchemy.engine import Engine
 from coach.config import Settings
+import coach.models  # noqa: F401  — register tables on SQLModel.metadata
 
 
 def make_engine(settings: Settings) -> Engine:
@@ -9,7 +10,9 @@ def make_engine(settings: Settings) -> Engine:
         url = "postgresql+psycopg://" + url[len("postgres://") :]
     elif url.startswith("postgresql://"):
         url = "postgresql+psycopg://" + url[len("postgresql://") :]
-    return create_engine(url, pool_pre_ping=True)
+    engine = create_engine(url, pool_pre_ping=True)
+    SQLModel.metadata.create_all(engine)
+    return engine
 
 
 def session_for(engine: Engine) -> Session:
