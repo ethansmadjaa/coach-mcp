@@ -117,6 +117,13 @@ The server runs FastMCP's [GitHub OAuth proxy](https://gofastmcp.com/servers/aut
 
 Build & deploy config lives in [`railway.toml`](railway.toml). Anything in there overrides the Railway dashboard. See [Railway config-as-code docs](https://docs.railway.com/reference/config-as-code).
 
+## Roadmap
+
+- [ ] **Interactive `get_summary` / `get_history`** — render the daily/weekly summary as a Prefab dashboard (KPI metrics, weight-trend line chart, macro pie chart, sortable meals table with badges for `estimated` vs `exact`) using FastMCP's [interactive tools](https://gofastmcp.com/apps/overview) (`@mcp.tool(app=True)`). Replaces the current JSON blob with a live UI inside the chat.
+- [ ] **Sleep tracking** — `sleeps` tool with duration, quality, bedtime. Sleep is a known driver of weight and protein synthesis, so it's the next natural addition.
+- [ ] **Body-composition fields** — fat %, lean mass on `weights`.
+- [ ] **Multi-user support** — today the server is single-user via `ALLOWED_GITHUB_LOGIN`.
+
 ## Troubleshooting
 
 | Symptom | Fix |
