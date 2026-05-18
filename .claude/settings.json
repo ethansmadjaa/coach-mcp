@@ -5,7 +5,8 @@
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
       "mcp__coach__meals",
-      "mcp__coach__get_history"
+      "mcp__coach__get_history",
+      "WebFetch(domain:gofastmcp.com)"
     ]
   }
 }
