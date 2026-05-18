@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## End-of-session check
 
-Run `make check` at the end of every coding session. It runs ruff + ty and is the gate before any commit.
+Run `make check` at the end of every coding session. It runs ruff + ty and mirrors the CI exactly — if it passes locally, the `Release` workflow on GitHub will pass too. Failing CI blocks the `release-please` job from running, so don't push red commits.
 
 ## Commands
 
@@ -22,6 +22,17 @@ Bootstrap / deploy (idempotent):
 - `make deploy` — `railway up --service coach-mcp --detach`
 
 There are **no tests** in this repo. Don't add a test command to the Makefile unless tests are introduced.
+
+## CI & releases
+
+A single workflow `.github/workflows/ci.yml` runs on every push to `main` and on PRs:
+
+1. **`check` job** — `ruff check`, `ruff format --check`, `uvx ty check`. Read-only, mirrors `make check`.
+2. **`release-please` job** — runs only when `check` passes **and** the trigger is a push to `main` (not a PR). Uses [release-please](https://github.com/googleapis/release-please) to parse Conventional Commits since the last tag, opens/updates a "release PR" that bumps `pyproject.toml` + `CHANGELOG.md`, and creates a GitHub Release tag when that PR is merged.
+
+Commit-message conventions matter: `feat:` → minor bump, `fix:` → patch, `feat!:` or `BREAKING CHANGE:` → major. `chore:` / `docs:` / `refactor:` / `ci:` / `build:` don't bump the version but may show up in the changelog. Never tag or release manually — let the workflow do it.
+
+Railway is connected to the GitHub repo and auto-deploys on push to `main`. To make Railway wait for CI before deploying, that's a Railway dashboard setting (Service → Settings → "Wait for CI"), not something we configure here.
 
 ## Architecture
 
@@ -66,3 +77,5 @@ When adding a new operation to an existing tool, add the payload class + extend 
 - `coach/db.py` — engine creation, URL scheme rewriting (`postgres://` → `postgresql+psycopg://`)
 - `coach/time.py` — all date/time logic, Paris timezone
 - `railway.toml` — build/deploy config
+- `.github/workflows/ci.yml` — lint + typecheck + release-please
+- `release-please-config.json` / `.release-please-manifest.json` — release-please state
